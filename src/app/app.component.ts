@@ -7,7 +7,23 @@ import {MatPaginator, MatTableDataSource, MatSort} from '@angular/material';
     styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-    displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+    displayedColumns: string[] = [
+        'action_reason_id',
+        'action_id',
+        'action_name',
+        'action_description',
+        'reason_id',
+        'reason_name',
+        'reason_description',
+        'action_reason_begin',
+        'action_reason_end',
+        'action_reason_create_id',
+        'action_reason_create_user',
+        'action_reason_create_date',
+        'action_reason_modify_id',
+        'action_reason_modify_user',
+        'action_reason_modify_date',
+    ];
     dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -24,21 +40,73 @@ export class AppComponent {
 }
 
 export interface PeriodicElement {
-    name: string;
-    position: number;
-    weight: number;
-    symbol: string;
+    action_reason_id: number;
+    action_id: number;
+    action_name: string;
+    action_description: string;
+    reason_id: number,
+    reason_name: string,
+    reason_description: string,
+    action_reason_begin: string,
+    action_reason_end: string,
+    action_reason_create_id: number,
+    action_reason_create_user: string,
+    action_reason_create_date: string,
+    action_reason_modify_id: number,
+    action_reason_modify_user: string,
+    action_reason_modify_date: any,
 }
 
 const ELEMENT_DATA: PeriodicElement[] = [
-    {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-    {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-    {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-    {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-    {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-    {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-    {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-    {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-    {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-    {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
+    {
+        action_reason_id: 37,
+        action_id: 13,
+        action_name: 'Zwrot skladki',
+        action_description: '',
+        reason_id: 5,
+        reason_name: 'Nadpłata po rekalkulacji składki',
+        reason_description: '',
+        action_reason_begin: '2018-10-04',
+        action_reason_end: '',
+        action_reason_create_id: 1,
+        action_reason_create_user: 'System System',
+        action_reason_create_date: '2018-10-04',
+        action_reason_modify_id: 1,
+        action_reason_modify_user: 'System System',
+        action_reason_modify_date: '2018-10-04',
+    },
+    {
+        action_reason_id: 38,
+        action_id: 18,
+        action_name: 'Zamiana wariantu w umowie',
+        action_description: '',
+        reason_id: 30,
+        reason_name: 'Zmiana właściciela przedmiotu ubezpiecenia',
+        reason_description: '',
+        action_reason_begin: '2018-10-04',
+        action_reason_end: '',
+        action_reason_create_id: 1,
+        action_reason_create_user: 'System System',
+        action_reason_create_date: '2018-10-04',
+        action_reason_modify_id: 1,
+        action_reason_modify_user: 'System System',
+        action_reason_modify_date: '2018-11-05',
+    },
+    {
+        action_reason_id: 25,
+        action_id: 18,
+        action_name: 'Zamiana wariantu w umowie',
+        action_description: '',
+        reason_id: 36,
+        reason_name: 'Przedterminowe zakończenie dobrowolnej umowy',
+        reason_description: '',
+        action_reason_begin: '2018-11-09',
+        action_reason_end: '',
+        action_reason_create_id: 2,
+        action_reason_create_user: 'System System',
+        action_reason_create_date: '2018-11-09',
+        action_reason_modify_id: 2,
+        action_reason_modify_user: 'System System',
+        action_reason_modify_date: '2018-11-09',
+    },
 ];
