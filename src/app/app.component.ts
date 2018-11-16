@@ -1,12 +1,16 @@
-import {Component, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator, MatTableDataSource, MatSort} from '@angular/material';
+import {merge, Observable, of as observableOf} from 'rxjs';
+import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+
     displayedColumns: string[] = [
         'action_reason_id',
         'action_id',
@@ -24,22 +28,64 @@ export class AppComponent {
         'action_reason_modify_user',
         'action_reason_modify_date',
     ];
-    dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
+    exampleDatabase: ExampleHttpDao | null;
+
+    data: ZendIssue[] = [];
+    dataSource = new MatTableDataSource();
+
+    resultsLength = 0;
+    isLoadingResults = true;
+    isRateLimitReached = false;
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) sort: MatSort;
 
+    constructor(private http: HttpClient) {
+    }
+
     ngOnInit() {
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        this.exampleDatabase = new ExampleHttpDao(this.http);
+
+        this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+
+        merge(this.sort.sortChange, this.paginator.page)
+            .pipe(
+                startWith({}),
+                switchMap(() => {
+                    this.isLoadingResults = true;
+                    return this.exampleDatabase!.getZendIssues(
+                        this.sort.active, this.sort.direction, this.paginator.pageIndex);
+                }),
+                map(data => {
+                    // Flip flag to show that loading has finished.
+                    this.isLoadingResults = false;
+                    this.isRateLimitReached = false;
+                    this.resultsLength = data.total_count;
+
+                    return data.data;
+                }),
+                catchError(() => {
+                    this.isLoadingResults = false;
+                    // Catch if the GitHub API has reached its rate limit. Return empty data.
+                    this.isRateLimitReached = true;
+                    return observableOf([]);
+                })
+            ).subscribe(data => this.dataSource.data = data);
     }
 
     applyFilter(filterValue: string) {
         this.dataSource.filter = filterValue.trim().toLowerCase();
     }
+
 }
 
-export interface PeriodicElement {
+export interface ZendApi {
+    items: ZendIssue[];
+    total_count: number;
+}
+
+export interface ZendIssue {
+
     action_reason_id: number;
     action_id: number;
     action_name: string;
@@ -57,56 +103,16 @@ export interface PeriodicElement {
     action_reason_modify_date: any,
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-    {
-        action_reason_id: 37,
-        action_id: 13,
-        action_name: 'Zwrot skladki',
-        action_description: '',
-        reason_id: 5,
-        reason_name: 'Nadpłata po rekalkulacji składki',
-        reason_description: '',
-        action_reason_begin: '2018-10-04',
-        action_reason_end: '',
-        action_reason_create_id: 1,
-        action_reason_create_user: 'System System',
-        action_reason_create_date: '2018-10-04',
-        action_reason_modify_id: 1,
-        action_reason_modify_user: 'System System',
-        action_reason_modify_date: '2018-10-04',
-    },
-    {
-        action_reason_id: 38,
-        action_id: 18,
-        action_name: 'Zamiana wariantu w umowie',
-        action_description: '',
-        reason_id: 30,
-        reason_name: 'Zmiana właściciela przedmiotu ubezpiecenia',
-        reason_description: '',
-        action_reason_begin: '2018-10-04',
-        action_reason_end: '',
-        action_reason_create_id: 1,
-        action_reason_create_user: 'System System',
-        action_reason_create_date: '2018-10-04',
-        action_reason_modify_id: 1,
-        action_reason_modify_user: 'System System',
-        action_reason_modify_date: '2018-11-05',
-    },
-    {
-        action_reason_id: 25,
-        action_id: 18,
-        action_name: 'Zamiana wariantu w umowie',
-        action_description: '',
-        reason_id: 36,
-        reason_name: 'Przedterminowe zakończenie dobrowolnej umowy',
-        reason_description: '',
-        action_reason_begin: '2018-11-09',
-        action_reason_end: '',
-        action_reason_create_id: 2,
-        action_reason_create_user: 'System System',
-        action_reason_create_date: '2018-11-09',
-        action_reason_modify_id: 2,
-        action_reason_modify_user: 'System System',
-        action_reason_modify_date: '2018-11-09',
-    },
-];
+export class ExampleHttpDao {
+    constructor(private http: HttpClient) {
+    }
+
+    getZendIssues(sort: string, order: string, page: number): Observable<ZendApi> {
+        const href = 'http://task-zend-2/album/json';
+        const requestUrl =
+            // `${href}?q=repo:angular/material2&sort=${sort}&order=${order}&page=${page + 1}`;
+            `${href}?q=repo:angular/material2&sort=${sort}&order=${order}&page=${page + 1}`;
+
+        return this.http.get<ZendApi>(requestUrl);
+    }
+}
