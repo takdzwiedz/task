@@ -76,7 +76,6 @@ export class AppComponent implements OnInit {
     applyFilter(filterValue: string) {
         this.dataSource.filter = filterValue.trim().toLowerCase();
     }
-
 }
 
 export interface ZendApi {
@@ -90,17 +89,17 @@ export interface ZendIssue {
     action_id: number;
     action_name: string;
     action_description: string;
-    reason_id: number,
-    reason_name: string,
-    reason_description: string,
-    action_reason_begin: string,
-    action_reason_end: string,
-    action_reason_create_id: number,
-    action_reason_create_user: string,
-    action_reason_create_date: string,
-    action_reason_modify_id: number,
-    action_reason_modify_user: string,
-    action_reason_modify_date: any,
+    reason_id: number;
+    reason_name: string;
+    reason_description: string;
+    action_reason_begin: string;
+    action_reason_end: string;
+    action_reason_create_id: number;
+    action_reason_create_user: string;
+    action_reason_create_date: string;
+    action_reason_modify_id: number;
+    action_reason_modify_user: string;
+    action_reason_modify_date: any;
 }
 
 export class ExampleHttpDao {
